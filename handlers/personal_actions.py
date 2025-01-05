@@ -32,5 +32,28 @@ async def cmd_donate(message: Message, command: CommandObject, l10n: FluentLocal
     kb = InlineKeyboardBuilder()
     kb.button(
         text=l10n.format_value("donate-button-pay", {'amount': amount}),
+        pay=True
+    )
+    kb.button(
+        text=l10n.format_value("donate-button-cancel", ),
+        callback_data="donate-cancel"
+    )
+    kb.adjust(1)
+
+    prices = [LabeledPrice(label="XTR", amount=amount)]
+    await message.answer_invoice(
+        title=l10n.format_value("donate-invoice-title"),
+        description=l10n.format_value("donate-invoice-description"),
+        prices=prices,
+        provider_token="",
+        payload=f"{amount}_stars",
+        currency="XTR",
+        reply_markup=kb.as_markup()
     )
 
+
+@router.callback_query(F.data == "donate_cancel")
+async def on_donate_cancel(callback: CallbackQuery, l10n: FluentLocalization):
+    await callback.answer(l10n.format_value("donate-cancel-payment"))
+
+    await callback.message.delete()
