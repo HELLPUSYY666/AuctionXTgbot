@@ -1,0 +1,9 @@
+aiogram
+ujson
+aiohttp[speedups]
+aiodns
+structlog
+pydantic
+fluent.runtime
+fluent.syntax
+colorama
