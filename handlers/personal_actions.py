@@ -57,3 +57,8 @@ async def on_donate_cancel(callback: CallbackQuery, l10n: FluentLocalization):
     await callback.answer(l10n.format_value("donate-cancel-payment"))
 
     await callback.message.delete()
+
+
+@router.message(Command("paysupport"))
+async def cmd_paysupport(message: Message, l10n: FluentLocalization):
+    await message.answer(l10n.format_value("donate-paysupport-message"))
