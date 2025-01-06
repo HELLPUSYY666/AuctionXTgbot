@@ -145,6 +145,5 @@ async def on_successfull_payment(message: Message, l10n: FluentLocalization):
             {"t_id": message.successful_payment.telegram_payment_charge_id}
         ),
 
-        # добавляем к сообщению эффект "сердечка" из стандартных реакций
         message_effect_id="5159385139981059251",
     )
