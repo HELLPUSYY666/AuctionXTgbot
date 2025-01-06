@@ -129,3 +129,22 @@ async def cmd_refund(message: Message, bot: Bot, command: CommandObject, l10n: F
 async def pre_checkout_query(query: PreCheckoutQuery, l10n: FluentLocalization):
     await query.answer(ok=True)
 
+
+@router.message(F.successful_payment)
+async def on_successfull_payment(message: Message, l10n: FluentLocalization):
+    # И наконец обработка УСПЕШНОГО ПЛАТЕЖА
+    # тут мы получаем объект message.successful_payment
+    # в котором содержится ID транзакции, пэйлод который мы указывали при создании инвойса
+    # и все такое прочее
+    # ..
+    # мы же просто передаем сообщение об успешном донате
+
+    await message.answer(
+        l10n.format_value(
+            "donate-successful-payment",
+            {"t_id": message.successful_payment.telegram_payment_charge_id}
+        ),
+
+        # добавляем к сообщению эффект "сердечка" из стандартных реакций
+        message_effect_id="5159385139981059251",
+    )
