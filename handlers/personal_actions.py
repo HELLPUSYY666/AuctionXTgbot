@@ -125,3 +125,7 @@ async def cmd_refund(message: Message, bot: Bot, command: CommandObject, l10n: F
         return
 
 
+@router.pre_checkout_query()
+async def pre_checkout_query(query: PreCheckoutQuery, l10n: FluentLocalization):
+    await query.answer(ok=True)
+
