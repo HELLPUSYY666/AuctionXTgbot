@@ -2,7 +2,7 @@ import structlog
 from aiogram import Router, F, Bot
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command, CommandStart, CommandObject
-from aiogram.types import Message, LabeledPrice, PreCheckoutQuery, InlineKeyboardMarkup
+from aiogram.types import Message, LabeledPrice, PreCheckoutQuery, InlineKeyboardMarkup, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from fluent.runtime import FluentLocalization
@@ -23,31 +23,59 @@ async def cmd_owner_hello(message: Message, l10n: FluentLocalization):
 
 @router.message(Command("donate", "donat", "донат"))
 async def cmd_donate(message: Message, command: CommandObject, l10n: FluentLocalization):
+    # проверяем, что в команду передан аргумент кол-ва. звёзд для доната
+    # если нет, то не обрабатываем команду и возвращаем сообщение с ошибкой
+    # также проверяем, чтобы кол-во. звёзд для доната было не менее 1 и не более 2500
+    # (текущие лимиты в Telegram API)
     if command.args is None or not command.args.isdigit() or not 1 <= int(command.args) <= 2500:
         await message.answer(l10n.format_value("donate-input-error"))
         return
 
+    # сумма доната
     amount = int(command.args)
 
+    # формируем клавиатуру
+    # это можно не делать, ТГ сам добавит клавиатуру
+    # но если нужна кастомная, то можно добавить свою
+    # (вхождение XTR и эмоджик ⭐️ ТГ автоматически поменяет на иконку ТГ звёзд)
+    # ВАЖНО! у кнопки платежа надо поставить аргумент pay=True
     kb = InlineKeyboardBuilder()
     kb.button(
-        text=l10n.format_value("donate-button-pay", {'amount': amount}),
-        pay=True
+        text=l10n.format_value("donate-button-pay", {"amount": amount}),
+        pay=True  # важный параметр!
     )
     kb.button(
-        text=l10n.format_value("donate-button-cancel", ),
-        callback_data="donate-cancel"
+        text=l10n.format_value("donate-button-cancel"),
+        callback_data="donate_cancel"
     )
-    kb.adjust(1)
+    kb.adjust(1)  # все кнопки в 1 ряд
 
+    # ФОРМИРУЕМ ИНВОЙС
+    # для платежей Telegram Stars список цен
+    # обязан состоять только из 1 элемента
     prices = [LabeledPrice(label="XTR", amount=amount)]
+
     await message.answer_invoice(
         title=l10n.format_value("donate-invoice-title"),
-        description=l10n.format_value("donate-invoice-description"),
+        description=l10n.format_value("donate-invoice-description", {"amount": amount}),
         prices=prices,
+
+        # provider_token оставляем пустым
         provider_token="",
+
+        # тут передаем любые данные (пэйлоад)
+        # например, идентификатор услуги которую покупает юзер
+        # или уровень подписки
+        # или еще что-то такое
+        # мы же передадим кол-во. задоначенных звёзд (просто так)
         payload=f"{amount}_stars",
+
+        # XTR - это код валюты Telegram Stars
         currency="XTR",
+
+        # не забываем передать нашу кастомную клавиатуру
+        # напоминаю, что это можно не делать
+        # ТГ сам добавит кнопку оплаты, если тут ничего не передавать
         reply_markup=kb.as_markup()
     )
 
@@ -62,3 +90,38 @@ async def on_donate_cancel(callback: CallbackQuery, l10n: FluentLocalization):
 @router.message(Command("paysupport"))
 async def cmd_paysupport(message: Message, l10n: FluentLocalization):
     await message.answer(l10n.format_value("donate-paysupport-message"))
+
+
+@router.message(Command("refund"))
+async def cmd_refund(message: Message, bot: Bot, command: CommandObject, l10n: FluentLocalization):
+    # ID транзакции для рефанда
+    # по ней можно понять, какой товар/услугу возвращает человек
+    # и по правилам ТГ, вы можете ОТКАЗАТЬ в рефанде
+    # но только в том случае, если условия отказа прописаны в Terms of Service вашего бота
+    # ...
+    # для примера, мы будем разрешать любой возврат звезд в любое время
+    t_id = command.args
+
+    # чекаем, указан ли ID транзакции
+    if t_id is None:
+        await message.answer(l10n.format_value("donate-refund-input-error"))
+        return
+
+    # пытаемся сделать рефанд
+    try:
+        await bot.refund_star_payment(
+            user_id=message.from_user.id,
+            telegram_payment_charge_id=t_id
+        )
+        await message.answer(l10n.format_value("donate-refund-success"))
+
+    except TelegramBadRequest as e:
+        err_text = l10n.format_value("donate-refund-code-not-found")
+
+        if "CHARGE_ALREADY_REFUNDED" in e.message:
+            err_text = l10n.format_value("donate-refund-already-refunded")
+
+        await message.answer(err_text)
+        return
+
+
