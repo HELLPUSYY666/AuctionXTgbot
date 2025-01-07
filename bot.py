@@ -23,9 +23,9 @@ async def main():
 
     # init bot object
     bot = Bot(
-        token=bot_config.token.get_secret_value(),  # get token as secret, so it will be hidden in logs
+        token=bot_config.token.get_secret_value(),
         default=DefaultBotProperties(
-            parse_mode=ParseMode.HTML  # ParseMode (HTML or MARKDOWN_V2 is preferable)
+            parse_mode=ParseMode.HTML
         )
     )
 
@@ -36,7 +36,7 @@ async def main():
     # start polling
     try:
         await dp.start_polling(bot,
-                               skip_updates=False)  # Don't skip updates, if your bot will process payments or other important stuff
+                               skip_updates=False)
     finally:
         await bot.session.close()
 
