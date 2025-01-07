@@ -33,7 +33,6 @@ async def main():
     logger: FilteringBoundLogger = structlog.get_logger()
     await logger.ainfo("Starting the bot...")
 
-    # start polling
     try:
         await dp.start_polling(bot,
                                skip_updates=False)
