@@ -160,7 +160,10 @@ client = TelegramClient('session_name', api_id, api_hash)
 @router.message(Command("мое мнение"))
 async def cmd_opinion(message: Message, l10n: FluentLocalization):
     await client.start()
-
+    channel = await client.get_entity(channel_username)
+    messages = await client.get_messages(channel, limit=1)
+    last_message = messages[0].text if messages else "Сообщений пока нет."
+    await message.answer(f"Вот мое мнение! Последнее сообщение из канала: {last_message}")
 
 
 async def get_last_message():
