@@ -4,8 +4,9 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command, CommandStart, CommandObject
 from aiogram.types import Message, LabeledPrice, PreCheckoutQuery, InlineKeyboardMarkup, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-
+from telethon import TelegramClient
 from fluent.runtime import FluentLocalization
+import asyncio
 
 # Declare router
 router = Router()
@@ -147,3 +148,33 @@ async def on_successfull_payment(message: Message, l10n: FluentLocalization):
 
         message_effect_id="5159385139981059251",
     )
+
+
+api_id = 'your_api_id'
+api_hash = 'your_api_hash'
+channel_username = 'https://t.me/jolybells'
+
+client = TelegramClient('session_name', api_id, api_hash)
+
+
+@router.message(Command("мое мнение"))
+async def cmd_opinion(message: Message, l10n: FluentLocalization):
+    api_id = 'your_api_id'
+    api_hash = 'your_api_hash'
+    channel_username = 'https://t.me/jolybells'
+
+    client = TelegramClient('session_name', api_id, api_hash)
+    await message.answer("Вот мое мнение!")
+
+
+async def get_last_message():
+    await client.start()
+    channel = await client.get_entity(channel_username)
+    messages = await client.get_messages(channel, limit=1)
+    last_message = messages[0]
+    return last_message.text
+
+
+with client:
+    last_message = asyncio.run(get_last_message())
+    print("Last message:", last_message)
