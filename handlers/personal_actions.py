@@ -159,12 +159,8 @@ client = TelegramClient('session_name', api_id, api_hash)
 
 @router.message(Command("мое мнение"))
 async def cmd_opinion(message: Message, l10n: FluentLocalization):
-    api_id = 'your_api_id'
-    api_hash = 'your_api_hash'
-    channel_username = 'https://t.me/jolybells'
+    await client.start()
 
-    client = TelegramClient('session_name', api_id, api_hash)
-    await message.answer("Вот мое мнение!")
 
 
 async def get_last_message():
