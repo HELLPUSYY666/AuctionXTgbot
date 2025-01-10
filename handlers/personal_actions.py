@@ -167,11 +167,10 @@ async def cmd_opinion(message: Message, l10n: FluentLocalization):
 
 
 async def get_last_message():
-    await client.start()
-    channel = await client.get_entity(channel_username)
-    messages = await client.get_messages(channel, limit=1)
-    last_message = messages[0]
-    return last_message.text
+    async with client:
+        channel = await client.get_entity(channel_username)
+        messages = await client.get_messages(channel, limit=1)
+        return messages[0].text if messages else "Сообщений пока нет."
 
 
 with client:
