@@ -7,6 +7,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from telethon import TelegramClient
 from fluent.runtime import FluentLocalization
 import asyncio
+from telethon.errors import RPCError
 
 # Declare router
 router = Router()
@@ -14,12 +15,12 @@ router.message.filter(F.chat.type == "private")
 
 # Declare logger
 logger = structlog.get_logger()
-
 # Telethon Client Configuration
 API_ID = '26212615'
 API_HASH = '9782dd94b8d3fe6fbe1d8a01bb760af6'
 CHANNEL_USERNAME = 'https://t.me/jolybells'
-client = TelegramClient('session_name', API_ID, API_HASH)
+SESSION_NAME = 'my_bot_session'
+client = TelegramClient(SESSION_NAME, API_ID, API_HASH)
 
 
 # Handlers
@@ -104,22 +105,31 @@ async def on_successful_payment(message: Message, l10n: FluentLocalization):
 
 
 @router.message(Command("мое мнение"))
-async def cmd_opinion(message: Message, l10n: FluentLocalization):
+async def cmd_opinion(message: Message):
     try:
-        await client.start()
+        # Убедимся, что клиент запущен
+        if not client.is_connected():
+            await client.start()
+
+        # Получение последнего сообщения из канала
         last_message = await get_last_message()
+
+        # Отправка ответа
         await message.answer(f"Вот мое мнение! Последнее сообщение из канала: {last_message}")
     except Exception as e:
-        logger.error("Failed to fetch last message", error=str(e))
+        # Логирование и отправка ошибки пользователю
+        logger.error(f"Failed to fetch last message: {str(e)}")
         await message.answer("Не удалось получить сообщение из канала. Попробуйте позже.")
 
 
 async def get_last_message():
-    async with client:
-        try:
-            channel = await client.get_entity(CHANNEL_USERNAME)
-            messages = await client.get_messages(channel, limit=1)
-            return messages[0].text if messages else "Сообщений пока нет."
-        except Exception as e:
-            logger.error("Error fetching last message", error=str(e))
-            return "Ошибка при получении сообщения."
+    try:
+        channel = await client.get_entity(CHANNEL_USERNAME)
+        messages = await client.get_messages(channel, limit=1)
+        return messages[0].text if messages else "Сообщений пока нет."
+    except RPCError as e:
+        logger.error(f"RPC error while fetching messages: {str(e)}")
+        return "Ошибка при подключении к каналу."
+    except Exception as e:
+        logger.error(f"Unexpected error while fetching messages: {str(e)}")
+        return "Произошла неизвестная ошибка."
