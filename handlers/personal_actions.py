@@ -115,7 +115,6 @@ async def cmd_opinion(message: Message, l10n: FluentLocalization):
 
 
 async def get_last_message():
-    """Fetch the last message from the specified channel."""
     async with client:
         try:
             channel = await client.get_entity(CHANNEL_USERNAME)
