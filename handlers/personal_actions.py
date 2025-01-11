@@ -150,8 +150,8 @@ async def on_successfull_payment(message: Message, l10n: FluentLocalization):
     )
 
 
-api_id = 'your_api_id'
-api_hash = 'your_api_hash'
+api_id = '26212615'
+api_hash = '9782dd94b8d3fe6fbe1d8a01bb760af6'
 channel_username = 'https://t.me/jolybells'
 
 client = TelegramClient('session_name', api_id, api_hash)
