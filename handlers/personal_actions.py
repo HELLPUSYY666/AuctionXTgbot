@@ -94,3 +94,9 @@ async def cmd_donate(message: Message, command: CommandObject, l10n: FluentLocal
 @router.message(Command("feedback"))
 async def cmd_feedback(message: Message):
     await message.answer("Пожалуйста, напишите ваш отзыв. Отправьте его в следующем сообщении.")
+
+    @router.message(F.text)
+    async def receive_feedback(feedback_message: Message):
+        feedback_text = feedback_message.text
+        user_id = feedback_message.from_user.id
+        username = feedback_message.from_user.username
