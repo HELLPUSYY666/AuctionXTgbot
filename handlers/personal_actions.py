@@ -25,7 +25,7 @@ async def get_db_connection():
     return await asyncpg.connect(
         user='zakariyapolevchishikov',
         password='zakaolga2005',
-        database='zakariyapolevchishikov',
+        database='tg_bot',
         host='localhost'
     )
 
