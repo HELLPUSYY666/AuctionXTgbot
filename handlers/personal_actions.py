@@ -105,11 +105,12 @@ async def cmd_donate(message: Message, command: CommandObject, l10n: FluentLocal
 
 class FeedbackStates(StatesGroup):
     waiting_for_feedback = State()
-    
+
 
 @router.message(Command("feedback"))
-async def cmd_feedback(message: Message):
+async def cmd_feedback(message: Message, state: FSMContext):
     await message.answer("Пожалуйста, напишите ваш отзыв. Отправьте его в следующем сообщении.")
+    await state.set_state(FeedbackStates.waiting_for_feedback)
 
     @router.message(F.text)
     async def receive_feedback(feedback_message: Message):
