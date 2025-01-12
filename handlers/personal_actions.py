@@ -7,6 +7,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from telethon import TelegramClient
 from telethon.errors import RPCError
 from fluent.runtime import FluentLocalization
+import asyncpg
 
 # Router and logger setup
 router = Router()
@@ -19,6 +20,14 @@ API_HASH = '9782dd94b8d3fe6fbe1d8a01bb760af6'
 SESSION_NAME = 'user_session'
 client = TelegramClient(SESSION_NAME, API_ID, API_HASH)
 CHANNEL_USERNAME = 'jolybells'  # Замените на username канала
+
+async def get_db_connection():
+    return await asyncpg.connect(
+        user='zakariyapolevchishikov',
+        password='zakaolga2005',
+        database='zakariyapolevchishikov',
+        host='localhost'
+    )
 
 
 # Handlers
@@ -100,3 +109,14 @@ async def cmd_feedback(message: Message):
         feedback_text = feedback_message.text
         user_id = feedback_message.from_user.id
         username = feedback_message.from_user.username
+
+    try:
+        conn = await get_db_connection()
+        await conn.execute(
+            """
+            INSERT INTO feedback (user_id, username, feedback_text) 
+            VALUES ($1, $2, $3)
+            """,
+            user_id, username, feedback_text
+        )
+        await conn.close()
