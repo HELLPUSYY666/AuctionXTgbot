@@ -112,8 +112,8 @@ async def cmd_feedback(message: Message, state: FSMContext):
     await message.answer("Пожалуйста, напишите ваш отзыв. Отправьте его в следующем сообщении.")
     await state.set_state(FeedbackStates.waiting_for_feedback)
 
-    @router.message(F.text)
-    async def receive_feedback(feedback_message: Message):
+    @router.message(FeedbackStates.waiting_for_feedback)
+    async def receive_feedback(feedback_message: Message, state: FSMContext):
         feedback_text = feedback_message.text
         user_id = feedback_message.from_user.id
         username = feedback_message.from_user.username
