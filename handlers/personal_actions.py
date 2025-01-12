@@ -8,6 +8,8 @@ from telethon import TelegramClient
 from telethon.errors import RPCError
 from fluent.runtime import FluentLocalization
 import asyncpg
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 
 # Router and logger setup
 router = Router()
@@ -20,6 +22,7 @@ API_HASH = '9782dd94b8d3fe6fbe1d8a01bb760af6'
 SESSION_NAME = 'user_session'
 client = TelegramClient(SESSION_NAME, API_ID, API_HASH)
 CHANNEL_USERNAME = 'jolybells'  # Замените на username канала
+
 
 async def get_db_connection():
     return await asyncpg.connect(
@@ -100,6 +103,10 @@ async def cmd_donate(message: Message, command: CommandObject, l10n: FluentLocal
         await message.answer("Произошла неизвестная ошибка. Обратитесь к администратору.")
 
 
+class FeedbackStates(StatesGroup):
+    waiting_for_feedback = State()
+    
+
 @router.message(Command("feedback"))
 async def cmd_feedback(message: Message):
     await message.answer("Пожалуйста, напишите ваш отзыв. Отправьте его в следующем сообщении.")
@@ -120,3 +127,8 @@ async def cmd_feedback(message: Message):
             user_id, username, feedback_text
         )
         await conn.close()
+
+        await feedback_message.answer("Спасибо за ваш отзыв!")
+    except Exception as e:
+        await feedback_message.answer("Произошла ошибка при сохранении отзыва. Попробуйте позже.")
+        print(f"Ошибка сохранения отзыва: {e}")
