@@ -89,3 +89,8 @@ async def cmd_donate(message: Message, command: CommandObject, l10n: FluentLocal
     except Exception as e:
         logger.error(f"Unexpected error during donation: {str(e)}")
         await message.answer("Произошла неизвестная ошибка. Обратитесь к администратору.")
+
+
+@router.message(Command("feedback"))
+async def cmd_feedback(message: Message):
+    await message.answer("Пожалуйста, напишите ваш отзыв. Отправьте его в следующем сообщении.")
