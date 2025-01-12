@@ -129,8 +129,9 @@ async def cmd_feedback(message: Message, state: FSMContext):
             )
             await conn.close()
 
+            await feedback_message.answer("Спасибо за ваш отзыв!")
+        except Exception as e:
+            await feedback_message.answer("Произошла ошибка при сохранении отзыва. Попробуйте позже.")
+            print(f"Ошибка сохранения отзыва: {e}")
 
-        await feedback_message.answer("Спасибо за ваш отзыв!")
-    except Exception as e:
-        await feedback_message.answer("Произошла ошибка при сохранении отзыва. Попробуйте позже.")
-        print(f"Ошибка сохранения отзыва: {e}")
+        await state.clear()
