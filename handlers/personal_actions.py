@@ -118,16 +118,17 @@ async def cmd_feedback(message: Message, state: FSMContext):
         user_id = feedback_message.from_user.id
         username = feedback_message.from_user.username
 
-    try:
-        conn = await get_db_connection()
-        await conn.execute(
-            """
-            INSERT INTO feedback (user_id, username, feedback_text) 
-            VALUES ($1, $2, $3)
-            """,
-            user_id, username, feedback_text
-        )
-        await conn.close()
+        try:
+            conn = await get_db_connection()
+            await conn.execute(
+                """
+                INSERT INTO feedback (user_id, username, feedback_text) 
+                VALUES ($1, $2, $3)
+                """,
+                user_id, username, feedback_text
+            )
+            await conn.close()
+
 
         await feedback_message.answer("Спасибо за ваш отзыв!")
     except Exception as e:
