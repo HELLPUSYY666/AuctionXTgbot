@@ -12,7 +12,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 import aiohttp
 
-
 # Router and logger setup
 router = Router()
 router.message.filter(F.chat.type == "private")
@@ -141,10 +140,22 @@ async def cmd_feedback(message: Message, state: FSMContext):
 
 async def get_weather_open_meteo(city: str) -> str:
     url = "https://api.open-meteo.com/v1/forecast"
-    # Вы можете использовать стороннюю библиотеку для определения координат по названию города, например Geopy.
+
+    # Координаты для Алматы и Тайланда
+    coordinates = {
+        "Almaty": {"latitude": 43.2567, "longitude": 76.9286},
+        "Thailand": {"latitude": 15.8700, "longitude": 100.9925}
+    }
+
+    # Выбираем координаты в зависимости от города
+    if city in coordinates:
+        lat, lon = coordinates[city]["latitude"], coordinates[city]["longitude"]
+    else:
+        return "Город не поддерживается."
+
     params = {
-        "latitude": 43.2567,  # Координаты Алматы
-        "longitude": 76.9286,
+        "latitude": lat,
+        "longitude": lon,
         "current_weather": True
     }
 
@@ -155,7 +166,7 @@ async def get_weather_open_meteo(city: str) -> str:
                     data = await response.json()
                     temp = data["current_weather"]["temperature"]
                     wind = data["current_weather"]["windspeed"]
-                    return f"Текущая погода: {temp}°C, скорость ветра: {wind} км/ч"
+                    return f"Текущая погода в {city}: {temp}°C, скорость ветра: {wind} км/ч"
                 else:
                     return "Ошибка при получении данных о погоде."
     except Exception as e:
