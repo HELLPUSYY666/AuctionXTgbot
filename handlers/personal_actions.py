@@ -236,3 +236,17 @@ async def handle_remind_command(message: Message):
     except Exception as e:
         logger.error(f"Ошибка при обработке команды /remind: {e}")
         await message.reply("\u274c Неверный формат. Используйте: /remind HH:MM текст.")
+
+
+@router.message(commands=['list_reminders'])
+async def handle_list_reminders(message: Message):
+    """Отображение всех напоминаний для пользователя."""
+    user_reminders = [r for r in reminders if r['chat_id'] == message.chat.id]
+
+    if not user_reminders:
+        await message.reply("\ud83d\udeab У вас нет активных напоминаний.")
+    else:
+        reply_text = "\ud83d\udd14 Ваши напоминания:\n" + "\n".join(
+            [f"\u2022 {r['time'].strftime('%H:%M')} - {r['text']}" for r in user_reminders]
+        )
+        await message.reply(reply_text)
