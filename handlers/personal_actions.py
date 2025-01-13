@@ -1,5 +1,5 @@
 import structlog
-from aiogram import Router, F, Bot
+from aiogram import Router, F, Bot, types
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command, CommandStart, CommandObject
 from aiogram.types import Message, LabeledPrice, PreCheckoutQuery, InlineKeyboardMarkup, CallbackQuery
@@ -171,3 +171,13 @@ async def get_weather_open_meteo(city: str) -> str:
                     return "Ошибка при получении данных о погоде."
     except Exception as e:
         return f"Произошла ошибка: {e}"
+
+
+@router.message(commands=['weather'])
+async def weather(message: types.Message):
+    city = message.get_args()  # Получаем название города из аргумента команды
+    if city:
+        weather_info = await get_weather_open_meteo(city)
+        await message.reply(weather_info)
+    else:
+        await message.reply("Пожалуйста, укажите город. Например, /weather Almaty.")
