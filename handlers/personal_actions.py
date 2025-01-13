@@ -135,3 +135,4 @@ async def cmd_feedback(message: Message, state: FSMContext):
             print(f"Ошибка сохранения отзыва: {e}")
 
         await state.clear()
+
