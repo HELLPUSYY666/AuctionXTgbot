@@ -10,6 +10,8 @@ from fluent.runtime import FluentLocalization
 import asyncpg
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+import aiohttp
+
 
 # Router and logger setup
 router = Router()
@@ -136,3 +138,25 @@ async def cmd_feedback(message: Message, state: FSMContext):
 
         await state.clear()
 
+
+async def get_weather_open_meteo(city: str) -> str:
+    url = "https://api.open-meteo.com/v1/forecast"
+    # Вы можете использовать стороннюю библиотеку для определения координат по названию города, например Geopy.
+    params = {
+        "latitude": 43.2567,  # Координаты Алматы
+        "longitude": 76.9286,
+        "current_weather": True
+    }
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    temp = data["current_weather"]["temperature"]
+                    wind = data["current_weather"]["windspeed"]
+                    return f"Текущая погода: {temp}°C, скорость ветра: {wind} км/ч"
+                else:
+                    return "Ошибка при получении данных о погоде."
+    except Exception as e:
+        return f"Произошла ошибка: {e}"
