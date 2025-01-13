@@ -14,6 +14,10 @@ import aiohttp
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.date import DateTrigger
 from datetime import datetime
+from tgbotbase3.dispatcher import dp
+BOT_TOKEN = "7057230300:AAGB9yqp5oi4tY8jAB2ZyW3DnC9WUyfk1cI"
+bot = Bot(token=BOT_TOKEN)
+router = Router()
 
 scheduler = AsyncIOScheduler()
 reminders = []
@@ -191,49 +195,5 @@ async def weather(message: types.Message):
         await message.reply("Пожалуйста, укажите город. Например, /weather Almaty.")
 
 
-@dp.message_handler(commands=["remind"])
-async def set_reminder(message: types.Message):
-    try:
-        # Разделяем текст команды
-        args = message.text.split(maxsplit=2)
-        if len(args) < 3:
-            await message.reply("❌ Формат: /remind <время> <текст напоминания>")
-            return
-
-        # Парсим время
-        time = args[1]
-        reminder_text = args[2]
-        reminder_time = datetime.strptime(time, "%H:%M").replace(
-            year=datetime.now().year, month=datetime.now().month, day=datetime.now().day
-        )
-
-        # Если время прошло, перенесем на завтра
-        if reminder_time < datetime.now():
-            reminder_time = reminder_time.replace(day=reminder_time.day + 1)
-
-        # Уникальный ID напоминания
-        reminder_id = f"{message.chat.id}_{reminder_time.timestamp()}"
-
-        # Сохраняем напоминание
-        reminders[reminder_id] = {
-            "chat_id": message.chat.id,
-            "text": reminder_text,
-            "time": reminder_time,
-        }
-
-        # Добавляем задачу в планировщик
-        scheduler.add_job(
-            send_reminder,
-            trigger=DateTrigger(run_date=reminder_time),
-            kwargs={"chat_id": message.chat.id, "text": reminder_text},
-            id=reminder_id,
-        )
-
-        await message.reply(f"✅ Напоминание установлено на {reminder_time.strftime('%H:%M')}")
-    except ValueError:
-        await message.reply("❌ Неправильный формат времени. Используйте HH:MM")
-
-
-# Функция отправки напоминания
-async def send_reminder(chat_id, text):
-    await bot.send_message(chat_id, f"🔔 Напоминание: {text}")
+async def send_reminder(chat_id: int, text: str):
+    await bot.send_message(chat_id, f"\ud83d\udd14 Напоминание: {text}")
