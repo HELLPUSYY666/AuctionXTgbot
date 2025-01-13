@@ -11,6 +11,12 @@ import asyncpg
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 import aiohttp
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.date import DateTrigger
+from datetime import datetime
+
+scheduler = AsyncIOScheduler()
+reminders = {}
 
 # Router and logger setup
 router = Router()
@@ -38,6 +44,7 @@ async def get_db_connection():
 # Handlers
 @router.message(Command("start"))
 async def cmd_owner_hello(message: Message, l10n: FluentLocalization):
+    logger.info("Received /start command")
     await message.answer(l10n.format_value("hello-msg"))
 
 
@@ -182,3 +189,51 @@ async def weather(message: types.Message):
         await message.reply(weather_info)
     else:
         await message.reply("Пожалуйста, укажите город. Например, /weather Almaty.")
+
+
+@dp.message_handler(commands=["remind"])
+async def set_reminder(message: types.Message):
+    try:
+        # Разделяем текст команды
+        args = message.text.split(maxsplit=2)
+        if len(args) < 3:
+            await message.reply("❌ Формат: /remind <время> <текст напоминания>")
+            return
+
+        # Парсим время
+        time = args[1]
+        reminder_text = args[2]
+        reminder_time = datetime.strptime(time, "%H:%M").replace(
+            year=datetime.now().year, month=datetime.now().month, day=datetime.now().day
+        )
+
+        # Если время прошло, перенесем на завтра
+        if reminder_time < datetime.now():
+            reminder_time = reminder_time.replace(day=reminder_time.day + 1)
+
+        # Уникальный ID напоминания
+        reminder_id = f"{message.chat.id}_{reminder_time.timestamp()}"
+
+        # Сохраняем напоминание
+        reminders[reminder_id] = {
+            "chat_id": message.chat.id,
+            "text": reminder_text,
+            "time": reminder_time,
+        }
+
+        # Добавляем задачу в планировщик
+        scheduler.add_job(
+            send_reminder,
+            trigger=DateTrigger(run_date=reminder_time),
+            kwargs={"chat_id": message.chat.id, "text": reminder_text},
+            id=reminder_id,
+        )
+
+        await message.reply(f"✅ Напоминание установлено на {reminder_time.strftime('%H:%M')}")
+    except ValueError:
+        await message.reply("❌ Неправильный формат времени. Используйте HH:MM")
+
+
+# Функция отправки напоминания
+async def send_reminder(chat_id, text):
+    await bot.send_message(chat_id, f"🔔 Напоминание: {text}")
