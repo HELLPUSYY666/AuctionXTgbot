@@ -26,12 +26,13 @@ CHANNEL_USERNAME = 'jolybells'  # Замените на username канала
 
 
 async def get_db_connection():
-    return await asyncpg.connect(
+    conn = await asyncpg.connect(
         user='zakariyapolevchishikov',
         password='zakaolga2005',
         database='tg_bot',
         host='localhost'
     )
+    return conn
 
 
 # Handlers
