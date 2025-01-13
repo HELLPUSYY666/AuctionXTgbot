@@ -16,7 +16,7 @@ from apscheduler.triggers.date import DateTrigger
 from datetime import datetime
 
 scheduler = AsyncIOScheduler()
-reminders = {}
+reminders = []
 
 # Router and logger setup
 router = Router()
