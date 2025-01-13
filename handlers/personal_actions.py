@@ -250,3 +250,13 @@ async def handle_list_reminders(message: Message):
             [f"\u2022 {r['time'].strftime('%H:%M')} - {r['text']}" for r in user_reminders]
         )
         await message.reply(reply_text)
+
+
+@router.message(commands=['start'])
+async def handle_start_command(message: Message):
+    """Приветственное сообщение."""
+    await message.reply(
+        "Привет! Я бот-напоминалка. \ud83d\udd14\n\n" +
+        "Используйте команду /remind HH:MM текст, чтобы установить напоминание.\n" +
+        "Например: /remind 15:30 Позвонить маме."
+    )
