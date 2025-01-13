@@ -15,6 +15,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.date import DateTrigger
 from datetime import datetime
 from tgbotbase3.dispatcher import dp
+
 BOT_TOKEN = "7057230300:AAGB9yqp5oi4tY8jAB2ZyW3DnC9WUyfk1cI"
 bot = Bot(token=BOT_TOKEN)
 router = Router()
@@ -197,3 +198,41 @@ async def weather(message: types.Message):
 
 async def send_reminder(chat_id: int, text: str):
     await bot.send_message(chat_id, f"\ud83d\udd14 Напоминание: {text}")
+
+
+@router.message(commands=['remind'])
+async def handle_remind_command(message: Message):
+    """Обработка команды /remind HH:MM текст."""
+    try:
+        # Парсинг команды
+        parts = message.text.split(maxsplit=2)
+        if len(parts) < 3:
+            raise ValueError("Неверный формат команды. Используйте: /remind HH:MM текст.")
+
+        time_str, reminder_text = parts[1], parts[2]
+        remind_time = datetime.strptime(time_str, "%H:%M").time()
+        now = datetime.now()
+
+        # Вычисление времени для напоминания
+        remind_datetime = datetime.combine(now.date(), remind_time)
+        if remind_datetime < now:
+            remind_datetime += timedelta(days=1)
+
+        # Добавление задачи в планировщик
+        scheduler.add_job(
+            send_reminder,
+            trigger=DateTrigger(run_date=remind_datetime),
+            args=(message.chat.id, reminder_text),
+        )
+
+        # Сохранение напоминания
+        reminders.append({
+            "chat_id": message.chat.id,
+            "time": remind_datetime,
+            "text": reminder_text,
+        })
+
+        await message.reply(f"\ud83d\udd14 Напоминание установлено на {remind_datetime.strftime('%H:%M')}.")
+    except Exception as e:
+        logger.error(f"Ошибка при обработке команды /remind: {e}")
+        await message.reply("\u274c Неверный формат. Используйте: /remind HH:MM текст.")
