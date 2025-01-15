@@ -138,3 +138,25 @@ async def send_reminder(chat_id: int, text: str):
         await Bot.get_current().send_message(chat_id, f"\U0001F514 Reminder: {text}")
     except Exception as e:
         logger.error(f"Error sending reminder: {e}")
+
+
+@router.message(Command("feedback"))
+async def handle_feedback_command(message: Message):
+    try:
+        feedback_text = message.text.split(maxsplit=1)[1] if len(message.text.split()) > 1 else None
+
+        if not feedback_text:
+            await message.reply("Please provide your feedback after the command, like: /feedback Your feedback here.")
+            return
+
+        async with get_db_connection() as conn:
+            await conn.execute(
+                "INSERT INTO feedbacks (chat_id, feedback) VALUES ($1, $2)",
+                message.chat.id,
+                feedback_text
+            )
+
+        await message.reply("Thank you for your feedback! Your opinion is important to us. \U0001F60A")
+    except Exception as e:
+        logger.error(f"Error handling /feedback command: {e}")
+        await message.reply("There was an error saving your feedback. Please try again later.")
