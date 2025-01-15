@@ -41,9 +41,9 @@ class Config(BaseModel):
 def parse_config_file() -> dict:
     # Check if there's ENV variable that overrides config file path
     if environ.get('CONFIG_FILE_PATH') is not None:
-        file_path = environ.get('CONFIG_FILE_PATH')  # overriden config file name
+        file_path = environ.get('CONFIG_FILE_PATH') # overriden config file name
     else:
-        file_path = "config.toml"  # default config file name
+        file_path = "config.toml" # default config file name
 
     if file_path is None:
         error = "Could not find settings file"

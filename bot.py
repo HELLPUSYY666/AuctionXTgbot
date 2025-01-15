@@ -10,6 +10,7 @@ from logs import get_structlog_config
 from structlog.typing import FilteringBoundLogger
 
 from dispatcher import dp
+import handlers
 
 
 async def main():
@@ -22,9 +23,9 @@ async def main():
 
     # init bot object
     bot = Bot(
-        token=bot_config.token.get_secret_value(),
+        token=bot_config.token.get_secret_value(),  # get token as secret, so it will be hidden in logs
         default=DefaultBotProperties(
-            parse_mode=ParseMode.HTML
+            parse_mode=ParseMode.HTML  # ParseMode (HTML or MARKDOWN_V2 is preferable)
         )
     )
 
@@ -32,9 +33,10 @@ async def main():
     logger: FilteringBoundLogger = structlog.get_logger()
     await logger.ainfo("Starting the bot...")
 
+    # start polling
     try:
         await dp.start_polling(bot,
-                               skip_updates=False)
+                               skip_updates=False)  # Don't skip updates, if your bot will process payments or other important stuff
     finally:
         await bot.session.close()
 
