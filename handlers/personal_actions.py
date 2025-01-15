@@ -152,7 +152,7 @@ async def handle_feedback_command(message: Message):
         conn = await get_db_connection()
 
         await conn.execute(
-            "INSERT INTO feedbacks (chat_id, feedback) VALUES ($1, $2)",
+            "INSERT INTO feedback (feedback) VALUES ($1, $2)",
             message.chat.id,
             feedback_text
         )
