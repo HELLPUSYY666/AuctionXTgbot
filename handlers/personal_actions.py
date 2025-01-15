@@ -149,12 +149,15 @@ async def handle_feedback_command(message: Message):
             await message.reply("Please provide your feedback after the command, like: /feedback Your feedback here.")
             return
 
-        async with get_db_connection() as conn:
-            await conn.execute(
-                "INSERT INTO feedbacks (chat_id, feedback) VALUES ($1, $2)",
-                message.chat.id,
-                feedback_text
-            )
+        conn = await get_db_connection()
+
+        await conn.execute(
+            "INSERT INTO feedbacks (chat_id, feedback) VALUES ($1, $2)",
+            message.chat.id,
+            feedback_text
+        )
+
+        await conn.close()
 
         await message.reply("Thank you for your feedback! Your opinion is important to us. \U0001F60A")
     except Exception as e:
