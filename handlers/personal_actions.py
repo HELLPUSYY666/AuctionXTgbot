@@ -44,7 +44,6 @@ async def get_db_connection():
 
 @router.message(Command("start"))
 async def handle_start_command(message: Message):
-    """Handle the /start command."""
     await message.reply(
         "Welcome! I'm your reminder bot. \ud83d\udd14\n\n"
         "Use /remind HH:MM text to set a reminder.\n"
@@ -83,17 +82,22 @@ async def get_last_message():
 
 @router.message(Command("remind"))
 async def handle_remind_command(message: Message):
-    """Set a reminder with the specified time and text."""
     try:
         parts = message.text.split(maxsplit=2)
+
         if len(parts) < 3:
             raise ValueError("Invalid format. Use: /remind HH:MM text.")
 
         time_str, reminder_text = parts[1], parts[2]
-        remind_time = datetime.strptime(time_str, "%H:%M").time()
-        now = datetime.now()
 
+        try:
+            remind_time = datetime.strptime(time_str, "%H:%M").time()
+        except ValueError:
+            raise ValueError("Invalid time format. Use HH:MM.")
+
+        now = datetime.now()
         remind_datetime = datetime.combine(now.date(), remind_time)
+
         if remind_datetime < now:
             remind_datetime += timedelta(days=1)
 
@@ -109,10 +113,10 @@ async def handle_remind_command(message: Message):
             "text": reminder_text,
         })
 
-        await message.reply(f"\ud83d\udd14 Reminder set for {remind_datetime.strftime('%H:%M')}.")
+        await message.reply(f"\U0001F514 Reminder set for {remind_datetime.strftime('%H:%M')}.")
     except Exception as e:
         logger.error(f"Error handling /remind command: {e}")
-        await message.reply("\u274c Invalid format. Use: /remind HH:MM text.")
+        await message.reply(f"\u274c Error: {str(e)}")
 
 
 @router.message(Command("list_reminders"))
@@ -121,17 +125,16 @@ async def handle_list_reminders(message: Message):
     user_reminders = [r for r in reminders if r['chat_id'] == message.chat.id]
 
     if not user_reminders:
-        await message.reply("\ud83d\udeab You have no active reminders.")
+        await message.reply("\U0001F6AB You have no active reminders.")
     else:
-        reply_text = "\ud83d\udd14 Your reminders:\n" + "\n".join(
+        reply_text = "\U0001F514 Your reminders:\n" + "\n".join(
             [f"\u2022 {r['time'].strftime('%H:%M')} - {r['text']}" for r in user_reminders]
         )
         await message.reply(reply_text)
 
 
 async def send_reminder(chat_id: int, text: str):
-    """Send a reminder message."""
     try:
-        await Bot.get_current().send_message(chat_id, f"\ud83d\udd14 Reminder: {text}")
+        await Bot.get_current().send_message(chat_id, f"\U0001F514 Reminder: {text}")
     except Exception as e:
         logger.error(f"Error sending reminder: {e}")
