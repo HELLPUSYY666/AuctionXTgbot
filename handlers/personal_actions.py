@@ -60,7 +60,6 @@ async def handle_start_command(message: Message):
 
 @router.message(Command("mnenie"))
 async def cmd_opinion(message: Message):
-    """Fetch the last message from the specified channel."""
     try:
         if not client.is_connected():
             await client.start()
@@ -73,7 +72,6 @@ async def cmd_opinion(message: Message):
 
 
 async def get_last_message():
-    """Retrieve the latest message from the channel."""
     try:
         async with client:
             channel = await client.get_entity(CHANNEL_USERNAME)
