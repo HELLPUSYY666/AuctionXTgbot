@@ -15,6 +15,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.date import DateTrigger
 from datetime import datetime, timedelta
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
+
 from tgbotbase3.dispatcher import dp
 
 # Scheduler and reminders setup
@@ -58,6 +59,17 @@ async def handle_start_command(message: Message):
         reply_markup=keyboard
     )
 
+
+@dp.message_handler(lambda message: message.text == "Button 2")
+async def button2_handler(message: types.Message):
+    # При нажатии на "Button 2", выводим другие inline кнопки
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="Option X", callback_data="option_X"),
+             InlineKeyboardButton(text="Option Y", callback_data="option_Y")]
+        ]
+    )
+    await message.reply("Вы выбрали Button 2, выберите одну из опций:", reply_markup=keyboard)
 
 
 @router.message(Command("mnenie"))
