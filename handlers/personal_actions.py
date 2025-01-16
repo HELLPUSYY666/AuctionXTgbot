@@ -221,3 +221,4 @@ async def handle_feedback_command(message: Message):
     except Exception as e:
         logger.error(f"Error handling /feedback command: {e}")
         await message.reply("There was an error saving your feedback. Please try again later.")
+
