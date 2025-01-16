@@ -59,6 +59,17 @@ async def handle_start_command(message: Message):
     )
 
 
+@router.message(lambda message: message.text == "Button 1")
+async def button1_handler(message: types.Message):
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="Option A", callback_data="option_A"),
+             InlineKeyboardButton(text="Option B", callback_data="option_B")]
+        ]
+    )
+    await message.reply("Вы выбрали Button 2, выберите одну из опций:", reply_markup=keyboard)
+
+
 @router.message(lambda message: message.text == "Button 2")
 async def button2_handler(message: types.Message):
     keyboard = InlineKeyboardMarkup(
