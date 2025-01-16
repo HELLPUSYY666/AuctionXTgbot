@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 import structlog
 from aiogram import Bot, Dispatcher
@@ -29,11 +30,9 @@ async def main():
         )
     )
 
-    # start the logger
     logger: FilteringBoundLogger = structlog.get_logger()
     await logger.ainfo("Starting the bot...")
 
-    # start polling
     try:
         await dp.start_polling(bot,
                                skip_updates=False)  # Don't skip updates, if your bot will process payments or other important stuff
@@ -42,4 +41,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     asyncio.run(main())
