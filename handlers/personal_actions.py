@@ -19,6 +19,8 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeybo
 from tgbotbase3 import bot
 from tgbotbase3.dispatcher import dp
 
+from tgbotbase3 import keyboards as kb
+
 # Scheduler and reminders setup
 scheduler = AsyncIOScheduler()
 reminders = []
