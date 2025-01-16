@@ -222,3 +222,7 @@ async def handle_feedback_command(message: Message):
         logger.error(f"Error handling /feedback command: {e}")
         await message.reply("There was an error saving your feedback. Please try again later.")
 
+
+@router.message(F.photo)
+async def handle_photo(message: Message):
+    await message.answer(f'IF Photo: {message.photo[-1].file_id}')

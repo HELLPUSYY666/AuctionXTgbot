@@ -11,15 +11,13 @@ from dispatcher import dp
 import handlers
 from handlers.fcom_reader import router
 
+
 async def main():
-    # init logging
     log_config: LogConfig = get_config(model=LogConfig, root_key="logs")
     structlog.configure(**get_structlog_config(log_config))
 
-    # get bot config
     bot_config: BotConfig = get_config(model=BotConfig, root_key="bot")
 
-    # init bot object
     bot = Bot(
         token=bot_config.token.get_secret_value(),  # get token as secret, so it will be hidden in logs
         default=DefaultBotProperties(
