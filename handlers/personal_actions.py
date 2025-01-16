@@ -16,6 +16,7 @@ from apscheduler.triggers.date import DateTrigger
 from datetime import datetime, timedelta
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
 
+from tgbotbase3 import bot
 from tgbotbase3.dispatcher import dp
 
 # Scheduler and reminders setup
@@ -80,6 +81,14 @@ async def button3_handler(message: types.Message):
         ]
     )
     await message.reply("Вы выбрали Button 3, выберите одну из опций:", reply_markup=keyboard)
+
+
+@dp.callback_query_handler(lambda c: c.data in ["option_X", "option_Y", "option_M", "option_N"])
+async def process_callback(callback_query: types.CallbackQuery):
+    # Обрабатываем выбор пользователя из inline кнопок
+    selected_option = callback_query.data
+    await bot.answer_callback_query(callback_query.id)
+    await bot.send_message(callback_query.from_user.id, f"Вы выбрали: {selected_option}")
 
 
 @router.message(Command("mnenie"))
