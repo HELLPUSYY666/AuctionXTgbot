@@ -23,17 +23,15 @@ from tgbotbase3.dispatcher import dp
 scheduler = AsyncIOScheduler()
 reminders = []
 
-# Router and logger setup
 router = Router()
 router.message.filter(F.chat.type == "private")
 logger = structlog.get_logger()
 
-# Telethon Client Configuration
 API_ID = '26212615'
 API_HASH = '9782dd94b8d3fe6fbe1d8a01bb760af6'
 SESSION_NAME = 'user_session'
 client = TelegramClient(SESSION_NAME, API_ID, API_HASH)
-CHANNEL_USERNAME = 'jolybells'  # Replace with the actual channel username
+CHANNEL_USERNAME = 'jolybells'
 
 
 async def get_db_connection():
@@ -61,7 +59,7 @@ async def handle_start_command(message: Message):
     )
 
 
-@dp.message_handler(lambda message: message.text == "Button 2")
+@router.message(lambda message: message.text == "Button 2")
 async def button2_handler(message: types.Message):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -72,7 +70,7 @@ async def button2_handler(message: types.Message):
     await message.reply("Вы выбрали Button 2, выберите одну из опций:", reply_markup=keyboard)
 
 
-@dp.message_handler(lambda message: message.text == "Button 3")
+@router.message(lambda message: message.text == "Button 3")
 async def button3_handler(message: types.Message):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -83,7 +81,7 @@ async def button3_handler(message: types.Message):
     await message.reply("Вы выбрали Button 3, выберите одну из опций:", reply_markup=keyboard)
 
 
-@dp.callback_query_handler(lambda c: c.data in ["option_X", "option_Y", "option_M", "option_N"])
+@router.callback_query(lambda c: c.data in ["option_X", "option_Y", "option_M", "option_N"])
 async def process_callback(callback_query: types.CallbackQuery):
     selected_option = callback_query.data
     await bot.answer_callback_query(callback_query.id)
