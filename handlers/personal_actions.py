@@ -143,32 +143,35 @@ async def send_reminder(chat_id: int, text: str):
 @router.message(Command("feedback"))
 async def handle_feedback_command(message: Message):
     try:
-        # Извлекаем текст отзыва
+        # Проверяем текст отзыва
         feedback_text = message.text.split(maxsplit=1)[1] if len(message.text.split()) > 1 else None
 
         if not feedback_text:
             await message.reply("Please provide your feedback after the command, like: /feedback Your feedback here.")
             return
 
+        # Логируем входящие данные
+        logger.info(f"Chat ID: {message.chat.id}, Username: {message.from_user.username}, Feedback: {feedback_text}")
+
         # Установление соединения с БД
         conn = await get_db_connection()
 
-        # SQL-запрос с учётом всех обязательных полей
+        # Выполняем запрос
         await conn.execute(
             """
             INSERT INTO feedback (user_id, username, feedback_text) 
             VALUES ($1, $2, $3)
             """,
-            message.chat.id,         # user_id
-            message.from_user.username,  # username (может быть None)
-            feedback_text            # feedback_text
+            message.chat.id,             # user_id
+            message.from_user.username,  # username
+            feedback_text                # feedback_text
         )
 
-        # Закрытие соединения
+        # Закрываем соединение
         await conn.close()
 
-        # Сообщение пользователю об успешной записи
-        await message.reply("Thank you for your feedback! Your opinion is important to us. \U0001F60A")
+        # Уведомление об успешной записи
+        await message.reply("Thank you for your feedback! Your opinion is important to us. 😊")
     except Exception as e:
         logger.error(f"Error handling /feedback command: {e}")
         await message.reply("There was an error saving your feedback. Please try again later.")
