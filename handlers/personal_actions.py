@@ -151,9 +151,9 @@ async def handle_feedback_command(message: Message):
 
         conn = await get_db_connection()
 
+        # Предположим, что таблица "feedback" имеет два столбца: id и feedback_text
         await conn.execute(
-            "INSERT INTO feedback (feedback) VALUES ($1, $2)",
-            message.chat.id,
+            "INSERT INTO feedback (feedback_text) VALUES ($1)",
             feedback_text
         )
 
