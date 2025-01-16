@@ -1,5 +1,5 @@
 import structlog
-from aiogram import Router, F, Bot, types
+from aiogram import Router, F, Bot, types, Dispatcher
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command, CommandObject
 from aiogram.types import Message, LabeledPrice
@@ -14,7 +14,8 @@ import aiohttp
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.date import DateTrigger
 from datetime import datetime, timedelta
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
+from tgbotbase3.dispatcher import dp
 
 # Scheduler and reminders setup
 scheduler = AsyncIOScheduler()
@@ -56,6 +57,7 @@ async def handle_start_command(message: Message):
         "Выбирай любые опции на клавиатуре снизу..\n",
         reply_markup=keyboard
     )
+
 
 
 @router.message(Command("mnenie"))
@@ -167,9 +169,9 @@ async def handle_feedback_command(message: Message):
             INSERT INTO feedback (user_id, username, feedback_text) 
             VALUES ($1, $2, $3)
             """,
-            message.chat.id,             # user_id
+            message.chat.id,  # user_id
             message.from_user.username,  # username
-            feedback_text                # feedback_text
+            feedback_text  # feedback_text
         )
 
         # Закрываем соединение
