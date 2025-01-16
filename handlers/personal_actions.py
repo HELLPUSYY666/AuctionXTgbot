@@ -14,6 +14,7 @@ import aiohttp
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.date import DateTrigger
 from datetime import datetime, timedelta
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 # Scheduler and reminders setup
 scheduler = AsyncIOScheduler()
@@ -33,7 +34,6 @@ CHANNEL_USERNAME = 'jolybells'  # Replace with the actual channel username
 
 
 async def get_db_connection():
-    """Establish a connection to the database."""
     return await asyncpg.connect(
         user='zakariyapolevchishikov',
         password='zakaolga2005',
@@ -44,10 +44,17 @@ async def get_db_connection():
 
 @router.message(Command("start"))
 async def handle_start_command(message: Message):
+    keyboard = ReplyKeyboardMarkup(
+        resize_keyboard=True,
+        keyboard=[
+            [KeyboardButton(text="Button 1"), KeyboardButton(text="Button 2")],
+            [KeyboardButton(text="Button 3")]
+        ]
+    )
     await message.reply(
-        "Welcome! I'm your reminder bot. \ud83d\udd14\n\n"
-        "Use /remind HH:MM text to set a reminder.\n"
-        "Example: /remind 15:30 Call mom."
+        "Привет! Я бот, который может все! 🔔\n\n"
+        "Выбирай любые опции на клавиатуре снизу..\n",
+        reply_markup=keyboard
     )
 
 
