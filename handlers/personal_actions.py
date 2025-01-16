@@ -48,7 +48,7 @@ async def handle_start_command(message: Message):
     keyboard = ReplyKeyboardMarkup(
         resize_keyboard=True,
         keyboard=[
-            [KeyboardButton(text="Button 1"), KeyboardButton(text="Button 2")],
+            [KeyboardButton(text="Help"), KeyboardButton(text="Button 2")],
             [KeyboardButton(text="Button 3")]
         ]
     )
