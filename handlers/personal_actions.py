@@ -62,7 +62,6 @@ async def handle_start_command(message: Message):
 
 @dp.message_handler(lambda message: message.text == "Button 2")
 async def button2_handler(message: types.Message):
-    # При нажатии на "Button 2", выводим другие inline кнопки
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="Option X", callback_data="option_X"),
@@ -70,6 +69,17 @@ async def button2_handler(message: types.Message):
         ]
     )
     await message.reply("Вы выбрали Button 2, выберите одну из опций:", reply_markup=keyboard)
+
+
+@dp.message_handler(lambda message: message.text == "Button 3")
+async def button3_handler(message: types.Message):
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="Option M", callback_data="option_M"),
+             InlineKeyboardButton(text="Option N", callback_data="option_N")]
+        ]
+    )
+    await message.reply("Вы выбрали Button 3, выберите одну из опций:", reply_markup=keyboard)
 
 
 @router.message(Command("mnenie"))
