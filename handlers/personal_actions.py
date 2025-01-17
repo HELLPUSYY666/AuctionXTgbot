@@ -19,7 +19,11 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeybo
 from tgbotbase3 import bot
 from tgbotbase3.dispatcher import dp
 
+<<<<<<< HEAD
 from tgbotbase3.keyboards import confirm as kb
+=======
+from tgbotbase3 import keyboards as kb
+>>>>>>> bba64e4530972c9895b7763a0bba57fcd7dd12e7
 
 # Scheduler and reminders setup
 scheduler = AsyncIOScheduler()
@@ -47,6 +51,16 @@ async def get_db_connection():
 
 @router.message(Command("start"))
 async def handle_start_command(message: Message):
+<<<<<<< HEAD
+=======
+    keyboard = ReplyKeyboardMarkup(
+        resize_keyboard=True,
+        keyboard=[
+            [KeyboardButton(text="Help"), KeyboardButton(text="Button 2")],
+            [KeyboardButton(text="Button 3")]
+        ]
+    )
+>>>>>>> bba64e4530972c9895b7763a0bba57fcd7dd12e7
     await message.reply(
         "Привет! Я бот, который может все! 🔔\n\n"
         "Выбирай любые опции на клавиатуре снизу..\n",
@@ -216,3 +230,8 @@ async def handle_feedback_command(message: Message):
     except Exception as e:
         logger.error(f"Error handling /feedback command: {e}")
         await message.reply("There was an error saving your feedback. Please try again later.")
+
+
+@router.message(F.photo)
+async def handle_photo(message: Message):
+    await message.answer(f'IF Photo: {message.photo[-1].file_id}')
