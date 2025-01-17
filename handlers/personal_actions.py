@@ -19,6 +19,8 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeybo
 from tgbotbase3 import bot
 from tgbotbase3.dispatcher import dp
 
+from tgbotbase3.keyboards import confirm as kb
+
 # Scheduler and reminders setup
 scheduler = AsyncIOScheduler()
 reminders = []
@@ -45,17 +47,10 @@ async def get_db_connection():
 
 @router.message(Command("start"))
 async def handle_start_command(message: Message):
-    keyboard = ReplyKeyboardMarkup(
-        resize_keyboard=True,
-        keyboard=[
-            [KeyboardButton(text="Button 1"), KeyboardButton(text="Button 2")],
-            [KeyboardButton(text="Button 3")]
-        ]
-    )
     await message.reply(
         "Привет! Я бот, который может все! 🔔\n\n"
         "Выбирай любые опции на клавиатуре снизу..\n",
-        reply_markup=keyboard
+        reply_markup=kb.main
     )
 
 
