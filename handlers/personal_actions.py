@@ -15,7 +15,11 @@ logger = structlog.get_logger()
 
 @router.message(Command("start"))
 async def cmd_owner_hello(message: Message, l10n: FluentLocalization):
-    await message.answer(l10n.format_value("hello-msg"))
+    logger.info("Command /start received", user_id=message.from_user.id)
+    try:
+        await message.answer(l10n.format_value("hello-msg"))
+    except Exception as e:
+        logger.error("Error in /start command", error=str(e))
 
 
 @router.message(F.content_type.in_({'photo', 'video'}))

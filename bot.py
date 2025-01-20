@@ -10,7 +10,6 @@ from logs import get_structlog_config
 from structlog.typing import FilteringBoundLogger
 
 from dispatcher import dp
-import handlers
 
 
 async def main():
