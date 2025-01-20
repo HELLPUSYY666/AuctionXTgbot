@@ -5,11 +5,12 @@ from aiogram.types import Message, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from fluent.runtime import FluentLocalization
+
 from tgbotbase3.filters.is_owner import IsOwnerFilter
 
 router = Router()
 router.message.filter(F.chat.type == "private",
-                      IsOwnerFilter(is_owner=True))
+                      IsOwnerFilter(is_owner=True))  # allow bot admin actions only for bot owner
 
 logger = structlog.get_logger()
 
