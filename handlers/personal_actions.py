@@ -1,31 +1,26 @@
 import structlog
 from aiogram import Router, F, Bot, types, Dispatcher
-from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command, CommandObject
 from aiogram.types import Message, LabeledPrice
-from aiogram.utils.keyboard import InlineKeyboardBuilder
 from telethon import TelegramClient
 from telethon.errors import RPCError
-from fluent.runtime import FluentLocalization
 import asyncpg
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State, StatesGroup
-import aiohttp
+from aiogram.filters import CommandStart
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.date import DateTrigger
 from datetime import datetime, timedelta
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
-
-from tgbotbase3 import bot
 from tgbotbase3.dispatcher import dp
+from tgbotbase3 import bot
 
 from tgbotbase3.keyboards import confirm as kb
-# Scheduler and reminders setup
+
 scheduler = AsyncIOScheduler()
 reminders = []
 
 router = Router()
-router.message.filter(F.chat.type == "private")
+dp.include_router(router)
+# router.message.filter(F.chat.type == "private")
 logger = structlog.get_logger()
 
 API_ID = '26212615'
@@ -44,53 +39,22 @@ async def get_db_connection():
     )
 
 
-@router.message(Command("start"))
+@router.update()
+async def log_update(update: types.Update):
+    if isinstance(update, types.Message):
+        logger.info(f"Received message with ID {update.message.message_id}")
+    elif isinstance(update, types.CallbackQuery):
+        logger.info(f"Received callback query with ID {update.callback_query.id}")
+    # Добавьте больше условий для других типов обновлений
+
+
+@router.message(CommandStart())
 async def handle_start_command(message: Message):
     await message.reply(
         "Привет! Я бот, который может все! 🔔\n\n"
         "Выбирай любые опции на клавиатуре снизу..\n",
         reply_markup=kb.main
     )
-
-
-@router.message(lambda message: message.text == "Button 1")
-async def button1_handler(message: types.Message):
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="Option A", callback_data="option_A"),
-             InlineKeyboardButton(text="Option B", callback_data="option_B")]
-        ]
-    )
-    await message.reply("Вы выбрали Button 2, выберите одну из опций:", reply_markup=keyboard)
-
-
-@router.message(lambda message: message.text == "Button 2")
-async def button2_handler(message: types.Message):
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="Option X", callback_data="option_X"),
-             InlineKeyboardButton(text="Option Y", callback_data="option_Y")]
-        ]
-    )
-    await message.reply("Вы выбрали Button 2, выберите одну из опций:", reply_markup=keyboard)
-
-
-@router.message(lambda message: message.text == "Button 3")
-async def button3_handler(message: types.Message):
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="Option M", callback_data="option_M"),
-             InlineKeyboardButton(text="Option N", callback_data="option_N")]
-        ]
-    )
-    await message.reply("Вы выбрали Button 3, выберите одну из опций:", reply_markup=keyboard)
-
-
-@router.callback_query(lambda c: c.data in ["option_X", "option_Y", "option_M", "option_N"])
-async def process_callback(callback_query: types.CallbackQuery):
-    selected_option = callback_query.data
-    await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, f"Вы выбрали: {selected_option}")
 
 
 @router.message(Command("mnenie"))
@@ -215,3 +179,4 @@ async def handle_feedback_command(message: Message):
     except Exception as e:
         logger.error(f"Error handling /feedback command: {e}")
         await message.reply("There was an error saving your feedback. Please try again later.")
+
