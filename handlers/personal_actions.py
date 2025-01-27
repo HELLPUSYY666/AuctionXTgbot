@@ -9,17 +9,14 @@ from telethon.errors import RPCError
 from fluent.runtime import FluentLocalization
 import asyncpg
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State, StatesGroup
 import aiohttp
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.date import DateTrigger
 from datetime import datetime, timedelta
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton, CallbackQuery
-
-from tgbotbase3 import bot
-from tgbotbase3.dispatcher import dp
-
+from aiogram.fsm.state import State, StatesGroup
 from tgbotbase3.keyboards import confirm as kb
+from aiogram.fsm.context import FSMContext
 
 # Scheduler and reminders setup
 scheduler = AsyncIOScheduler()
@@ -45,6 +42,11 @@ async def get_db_connection():
     )
 
 
+class Reg(StatesGroup):
+    name = State()
+    number = State()
+
+
 @router.message(Command("start"))
 async def handle_start_command(message: Message):
     await message.reply(
@@ -52,6 +54,11 @@ async def handle_start_command(message: Message):
         "Выбирай любые опции на клавиатуре снизу..\n",
         reply_markup=kb.main
     )
+
+
+@router.message(Command("reg"))
+async def reg_one(message: Message, state: FSMContext):
+    await state.set_state(Reg.name)
 
 
 @router.message(Command("get_photo"))
