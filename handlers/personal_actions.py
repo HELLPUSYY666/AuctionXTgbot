@@ -14,7 +14,7 @@ import aiohttp
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.date import DateTrigger
 from datetime import datetime, timedelta
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton, CallbackQuery
 
 from tgbotbase3 import bot
 from tgbotbase3.dispatcher import dp
@@ -54,44 +54,15 @@ async def handle_start_command(message: Message):
     )
 
 
-@router.message(lambda message: message.text == "Button 1")
-async def button1_handler(message: types.Message):
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="Option A", callback_data="option_A"),
-             InlineKeyboardButton(text="Option B", callback_data="option_B")]
-        ]
-    )
-    await message.reply("Вы выбрали Button 2, выберите одну из опций:", reply_markup=keyboard)
+@router.message(Command("get_photo"))
+async def handle_get_photo(message: Message):
+    await message.answer(text='Это масюль', photo='', caption='Это масюль')
 
 
-@router.message(lambda message: message.text == "Button 2")
-async def button2_handler(message: types.Message):
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="Option X", callback_data="option_X"),
-             InlineKeyboardButton(text="Option Y", callback_data="option_Y")]
-        ]
-    )
-    await message.reply("Вы выбрали Button 2, выберите одну из опций:", reply_markup=keyboard)
-
-
-@router.message(lambda message: message.text == "Button 3")
-async def button3_handler(message: types.Message):
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="Option M", callback_data="option_M"),
-             InlineKeyboardButton(text="Option N", callback_data="option_N")]
-        ]
-    )
-    await message.reply("Вы выбрали Button 3, выберите одну из опций:", reply_markup=keyboard)
-
-
-@router.callback_query(lambda c: c.data in ["option_X", "option_Y", "option_M", "option_N"])
-async def process_callback(callback_query: types.CallbackQuery):
-    selected_option = callback_query.data
-    await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, f"Вы выбрали: {selected_option}")
+@router.callback_query(F.data == 'catalog')
+async def catalof(callback: CallbackQuery):
+    await callback.answer('Вы выбрали каталог')
+    await callback.message.answer('Привет!')
 
 
 @router.message(Command("mnenie"))
