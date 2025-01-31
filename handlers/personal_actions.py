@@ -56,9 +56,33 @@ async def handle_start_command(message: Message):
     )
 
 
+@router.message(Command("help"))
+async def handle_help_command(message: Message):
+    await message.reply(
+        'Основные команды которые ты можешь использовать в этом боте такие: \n\n',
+        reply_markup=kb.help
+    )
+
+
 @router.message(Command("reg"))
 async def reg_one(message: Message, state: FSMContext):
     await state.set_state(Reg.name)
+    await message.answer('Введите ваше имя')
+
+
+@router.message(Reg.name)
+async def reg_two(message: Message, state: FSMContext):
+    await state.update_data(name=message.text)
+    await state.set_state(Reg.number)
+    await message.answer('Введите номер телефона')
+
+
+@router.message(Reg.number)
+async def reg_three(message: Message, state: FSMContext):
+    await state.update_data(number=message.text)
+    data = await state.get_data()
+    await message.answer(f'Все отлично!\nИмя {data['name']}\nНомер {data["number"]}')
+    await state.clear()
 
 
 @router.message(Command("get_photo"))
