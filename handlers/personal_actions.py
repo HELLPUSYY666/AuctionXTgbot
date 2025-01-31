@@ -81,13 +81,30 @@ async def reg_two(message: Message, state: FSMContext):
 async def reg_three(message: Message, state: FSMContext):
     await state.update_data(number=message.text)
     data = await state.get_data()
+    conn = await get_db_connection()
+    try:
+        await conn.execute(
+            """
+            INSERT INTO users (tg_id, name, phone) VALUES ($1, $2, $3)
+            ON CONFLICT (tg_id) DO UPDATE SET name = $2, phone = $3;
+            """,
+            message.from_user.id, data['name'], data['number']
+        )
+        await message.answer(f'Вы успешно зарегистрированы!\nИмя: {data["name"]}\nТелефон: {data["number"]}')
+    except Exception as e:
+        logger.error(f"Ошибка при сохранении данных в БД: {e}")
+        await message.answer("Произошла ошибка при регистрации. Попробуйте позже.")
+    finally:
+        if conn:
+            await conn.close()
+        await state.clear()
     await message.answer(f'Все отлично!\nИмя {data['name']}\nНомер {data["number"]}')
     await state.clear()
 
 
-@router.message(Command("get_photo"))
-async def handle_get_photo(message: Message):
-    await message.answer(text='Это масюль', photo='', caption='Это масюль')
+# @router.message(Command("get_photo"))
+# async def handle_get_photo(message: Message):
+#     await message.answer(text='Это масюль', photo='', caption='Это масюль')
 
 
 @router.callback_query(F.data == 'catalog')
